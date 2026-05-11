@@ -1,0 +1,690 @@
+// console.log('SCRIPT LOADED', new Date().toLocaleTimeString());
+
+// window.addEventListener('beforeunload', function () {
+//     console.log('PAGE IS RELOADING');
+// });
+
+
+const API = 'http://127.0.0.1:8000/api';
+
+// Redirect to login if no token
+const token = localStorage.getItem('token');
+if (!token) {
+    window.location.href = 'login.html';
+}
+
+// Helper function for API calls
+async function apiFetch(endpoint, options = {}) {
+    const res = await fetch(`${API}${endpoint}`, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`,
+            ...options.headers,
+        }
+    });
+    if (res.status === 401) {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+    }
+    return res;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    /* =========================
+        AVATAR INITIAL
+    =========================*/
+    const username = localStorage.getItem('username');
+    if (username) {
+        document.getElementById('avatar-initial').textContent = username[0].toUpperCase();
+        document.getElementById('avatar-username').textContent = username;
+    }
+
+    /* =========================
+        PROGRESS CALCULATION
+    ========================== */
+
+    function updateProgress(card) {
+        if (!card) return;
+
+        const tasks = card.querySelectorAll('.task-row');
+        const totalTasks = tasks.length;
+        let completedTasks = 0;
+
+        tasks.forEach(task => {
+            const checkbox = task.querySelector('.form-check-input');
+            const label = task.querySelector('.form-check-label');
+
+            if (!checkbox) return;
+
+            if (checkbox.checked) {
+                completedTasks++;
+                task.classList.add('completed');
+
+                if (label) {
+                    label.classList.add('text-decoration-line-through');
+                }
+            } else {
+                task.classList.remove('completed');
+
+                if (label) {
+                    label.classList.remove('text-decoration-line-through');
+                }
+            }
+        });
+
+        const percentage =
+            totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+        // Update meta text
+        const meta = card.querySelector('.card-meta');
+        if (meta) {
+            meta.textContent = `${completedTasks} of ${totalTasks} tasks`;
+        }
+
+        // Update progress bar
+        const progressBar = card.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = `${percentage}%`;
+            progressBar.setAttribute(`aria-valuenow`, percentage);
+        }
+    }
+
+
+    /* =========================
+        TASKS PREVIEW (3 + MORE)
+    =========================*/
+
+    function setupTaskPreview(card) {
+        const taskList = card.querySelector('.task-list');
+        if (!taskList) return;
+
+        const tasks = Array.from(taskList.querySelectorAll('.task-row'));
+        const MAX_VISIBLE = 3;
+
+        // Remove existing "+ more" button
+        const existingBtn = taskList.querySelector('.more-tasks-btn');
+        if (existingBtn) existingBtn.remove();
+
+        // Always reset task visibility first
+        tasks.forEach(task => {
+            task.classList.remove('task-hidden');
+        });
+
+        // If 3 or fewer → show all, no button
+        if (tasks.length <= MAX_VISIBLE) return;
+
+        // Hide tasks after the 3rd
+        tasks.forEach((task, index) => {
+            if (index >= MAX_VISIBLE) {
+                task.classList.add('task-hidden');
+            }
+        });
+
+        const hiddenCount = tasks.length - MAX_VISIBLE;
+        let expanded = false;
+
+        const moreBtn = document.createElement('div');
+        moreBtn.className = 'text-muted small mt-1 more-tasks-btn';
+        moreBtn.style.cursor = 'pointer';
+        moreBtn.textContent = `+${hiddenCount} more tasks…`;
+
+        moreBtn.addEventListener('click', () => {
+            expanded = !expanded;
+
+            tasks.forEach((task, index) => {
+                if (index >= MAX_VISIBLE) {
+                    task.classList.toggle('task-hidden', !expanded);
+                }
+            });
+
+            moreBtn.textContent = expanded
+                ? 'Show less'
+                : `+${hiddenCount} more tasks…`;
+        });
+
+        taskList.appendChild(moreBtn);
+    }
+
+
+    /* =========================
+        ADD TASK TO CARD
+    =========================*/
+
+    function addTaskToCard(card, taskText, taskId = null) {
+        const taskList = card.querySelector('.task-list');
+        if (!taskList || !taskText.trim()) return;
+
+        // Create task row
+        const taskRow = document.createElement('div');
+        taskRow.className = 'task-row';
+        if (taskId) taskRow.setAttribute('data-task-id', taskId);
+
+        taskRow.innerHTML = `
+        <span class="task-handle">
+            <i class="bi bi-grip-vertical"></i>
+        </span>
+        <input class="form-check-input" type="checkbox">
+        <label class="form-check-label">${taskText}</label>
+        <button type="button" class="btn-delete-task">✕</button>
+        `;
+
+        taskList.appendChild(taskRow);
+        taskRow.setAttribute('draggable', 'true');
+
+        // Re-run logic
+        updateProgress(card);
+        setupTaskPreview(card);
+    }
+
+
+    /* =========================
+        INITIALIZE ALL CARDS
+    =========================*/
+
+    const cards = document.querySelectorAll('.list-card');
+    cards.forEach(card => {
+        updateProgress(card);
+        setupTaskPreview(card);
+    });
+
+
+    /* =========================
+        CHECKBOX TOGGLES
+        (Event Delegation)
+    ========================= */
+
+    document.addEventListener('change', function (e) {
+        if (!e.target.classList.contains('form-check-input')) return;
+
+        const taskRow = e.target.closest('.task-row');
+        const card = e.target.closest('.list-card');
+        if (!taskRow || !card) return;
+
+        const taskId = taskRow.getAttribute('data-task-id');
+
+        updateProgress(card);
+
+        if (taskId) {
+            apiFetch(`/tasks/${taskId}/`, {
+                method: 'PATCH',
+                body: JSON.stringify({ completed: e.target.checked })
+            });
+        }
+    });
+
+    /* =========================
+        ADD TASK TOGGLE + SUBMIT
+    ========================= */
+
+    document.addEventListener('click', function (e) {
+
+        // OPEN add-task input
+        if (e.target.classList.contains('add-task-toggle')) {
+            e.preventDefault();
+
+            const card = e.target.closest('.list-card');
+            if (!card) return;
+
+            const form = card.querySelector('.add-task-row');
+            const input = card.querySelector('.task-input');
+
+            e.target.classList.add('d-none');
+            form.classList.remove('d-none');
+
+            input.focus();
+            return;
+        }
+
+        // SUBMIT task
+        if (e.target.classList.contains('btn-add-task')) {
+            e.preventDefault();
+
+            const card = e.target.closest('.list-card');
+            if (!card) return;
+
+            const input = card.querySelector('.task-input');
+            const taskText = input.value.trim();
+            const listId = card.closest('.col').getAttribute('data-list-id');
+
+            if (!taskText) return;
+
+            // Save to API
+            apiFetch('/tasks/', {
+                method: 'POST',
+                body: JSON.stringify({ title: taskText, task_list: listId })
+            }).then(res => {
+                if (res.ok) {
+                    res.json().then(task => {
+                        addTaskToCard(card, task.title, task.id);
+                    });
+                }
+            });
+
+            input.value = '';
+            card.querySelector('.add-task-row').classList.add('d-none');
+            card.querySelector('.add-task-toggle').classList.remove('d-none');
+        }
+    });
+
+
+    /* =========================
+        ENTER KEY FOR CREATE LIST
+    =========================*/
+    document.getElementById('new-list-name').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('create-list-btn').click();
+        }
+    });
+
+
+    /* =========================
+        ENTER KEY SUBMIT
+    =========================*/
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+
+        const input = e.target;
+        if (!input.classList.contains('task-input')) return;
+
+        e.preventDefault();
+
+        const card = input.closest('.list-card');
+        const taskText = input.value.trim();
+        const listId = card.closest('.col').getAttribute('data-list-id');
+
+        if (!taskText) return;
+
+        apiFetch('/tasks/', {
+            method: 'POST',
+            body: JSON.stringify({ title: taskText, task_list: listId })
+        }).then(res => {
+            if (res.ok) {
+                res.json().then(task => {
+                    addTaskToCard(card, task.title, task.id);
+                });
+            }
+        });
+
+        input.value = '';
+        card.querySelector('.add-task-row').classList.add('d-none');
+        card.querySelector('.add-task-toggle').classList.remove('d-none');
+    });
+
+
+    /* =========================
+        DRAG TASK
+    ========================= */
+    let draggedTask = null;
+
+    document.addEventListener('dragstart', e => {
+        const handle = e.target.closest('.task-handle');
+        if (!handle) {
+            e.preventDefault();
+            return;
+        }
+
+        draggedTask = handle.closest('.task-row');
+        draggedTask.classList.add('dragging');
+    });
+
+    document.addEventListener('dragend', () => {
+        if (draggedTask) {
+            draggedTask.classList.remove('dragging');
+            draggedTask = null;
+        }
+    });
+
+    document.addEventListener('dragover', e => {
+        const taskList = e.target.closest('.task-list');
+        if (!taskList || !draggedTask) return;
+
+        e.preventDefault();
+
+        const afterElement = getDragAfterElement(taskList, e.clientY);
+        if (afterElement == null) {
+            taskList.appendChild(draggedTask);
+        } else {
+            taskList.insertBefore(draggedTask, afterElement);
+        }
+    });
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [
+            ...container.querySelectorAll('.task-row:not(.dragging)')
+        ];
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+
+            if (offset < 0 && offset > closest.offset) {
+                return { offset, element: child };
+            }
+            return closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+
+
+    /* =========================
+        DELETE KEY
+    =========================*/
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.classList.contains('btn-delete-task')) return;
+        e.preventDefault();
+
+        const taskRow = e.target.closest('.task-row');
+        const card = taskRow.closest('.list-card');
+        const taskId = taskRow.getAttribute('data-task-id');
+
+        if (taskId) {
+            apiFetch(`/tasks/${taskId}/`, { method: 'DELETE' });
+        }
+
+        taskRow.remove();
+        updateProgress(card);
+        setupTaskPreview(card);
+    });
+
+
+    /* =========================
+        DELETE LIST
+    =========================*/
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.btn-delete-list');
+        if (!btn) return;
+        e.preventDefault();
+
+        const listId = btn.getAttribute('data-list-id');
+        const col = btn.closest('.col');
+        const category = col.getAttribute('data-category'); // ✅ FIX
+
+        if (confirm('Delete this list and all its tasks?')) {
+            apiFetch(`/lists/${listId}/`, { method: 'DELETE' }).then(() => {
+                col.remove();
+
+                // ✅ FIXED selector (backticks + correct variable)
+                const remaining = document.querySelectorAll(
+                    `#lists-container .col[data-category="${category}"]`
+                );
+
+                if (remaining.length === 0) {
+                    const catLink = document.querySelector(
+                        `#listTabs .dynamic-category a[data-filter="${category}"]`
+                    );
+                    if (catLink) catLink.closest('.nav-item').remove();
+                }
+            });
+        }
+    });
+
+
+
+    /* =========================
+        LOGOUT
+    =======================*/
+    document.getElementById('logout-btn').addEventListener('click', function () {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+    });
+
+
+    /* =========================
+        ALL FILTER (SIDEBAR)
+    ========================= */
+    const allFilter = document.querySelector('[data-filter="all"]');
+
+    allFilter.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        document.querySelectorAll('#listTabs .nav-link')
+            .forEach(l => l.classList.remove('active'));
+
+        this.classList.add('active');
+
+        document.querySelectorAll('#lists-container .col')
+            .forEach(col => col.style.display = '');
+    });
+
+
+    /* =========================
+    LOAD LISTS FROM API
+    =========================*/
+    async function loadLists() {
+        const res = await apiFetch('/lists/');
+        const lists = await res.json();
+        const container = document.getElementById('lists-container');
+
+        // Update sidebar categories only if they changed
+        const listTabs = document.getElementById('listTabs');
+        const categories = [...new Set(lists.map(l => l.category).filter(c => c))];
+
+        const existingCategories = new Set(
+            [...listTabs.querySelectorAll('.dynamic-category a')].map(a => a.getAttribute('data-filter'))
+        );
+
+        const categoriesChanged =
+            categories.length !== existingCategories.size ||
+            categories.some(c => !existingCategories.has(c));
+
+        if (categoriesChanged) {
+            listTabs.querySelectorAll('.dynamic-category').forEach(el => el.remove());
+
+            categories.forEach(category => {
+                const li = document.createElement('li');
+                li.className = 'nav-item dynamic-category';
+                li.innerHTML = `
+                    <a href="#" class="nav-link d-flex align-items-center" data-filter="${category}">
+                        <i class="bi bi-folder me-2 fs-5"></i> ${category}
+                    </a>
+                `;
+                listTabs.appendChild(li);
+
+                li.querySelector('a').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const filter = this.getAttribute('data-filter');
+                    document.querySelectorAll('#listTabs .nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('#lists-container .col').forEach(col => {
+                        col.style.display = filter === 'all' || col.getAttribute('data-category') === filter ? '' : 'none';
+                    });
+                });
+            });
+        }
+
+        // Get existing lis IDs in the DOM
+        const existingIds = new Set(
+            [...container.querySelectorAll('.col[data-list-id]')].map(el => el.getAttribute('data-list-id'))
+        );
+
+        // Get new list IDs from API
+        const newIds = new Set(lists.map(l => String(l.id)));
+
+        // Remove cards that no longer exist
+        container.querySelectorAll('.col[data-list-id]').forEach(col => {
+            if (!newIds.has(col.getAttribute('data-list-id'))) {
+                col.remove();
+            }
+        });
+
+        // Add new cards without touching existing ones
+        lists.forEach(list => {
+            if (!existingIds.has(String(list.id))) {
+                const col = document.createElement('div');
+                col.className = 'col h-100';
+                col.setAttribute('data-category', list.category);
+                col.setAttribute('data-list-id', list.id);
+                col.innerHTML = buildCardHTML(list);
+                container.appendChild(col);
+
+                const card = col.querySelector('.list-card');
+                updateProgress(card);
+                setupTaskPreview(card);
+            }
+        });
+        // Show empty state if no lists
+        const emptyState = container.querySelector('.empty-state');
+            if (lists.length === 0) {
+                if (!emptyState) {
+                    container.innerHTML = `
+                        <div class="empty-state text-center py-5 w-100">
+                            <i class="bi bi-clipboard2 fs-1 text-muted"></i>
+                            <h5 class="mt-3 text-muted">No lists yet</h5>
+                            <p class="text-muted small">Click "Create New List" to get started</p>
+                        </div>
+                    `;
+                }
+            } else {
+                if (emptyState) emptyState.remove();
+            }
+    }
+
+    // Build card HTML from list data
+    function buildCardHTML(list) {
+        const tasksHTML = list.tasks.map(task => `
+            <div class="task-row" data-task-id="${task.id}">
+                <span class="task-handle">
+                    <i class="bi bi-grip-vertical"></i>
+                </span>
+                <input class="form-check-input" type="checkbox" ${task.completed ? 'checked' : ''}>
+                <label class="form-check-label ${task.completed ? 'text-muted text-decoration-line-through' : ''}">
+                    ${task.title}
+                </label>
+                <button type="button" class="btn-delete-task">✕</button>
+            </div>
+        `).join('');
+
+        return `
+            <div class="card list-card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    ${list.name}
+                    <button type="button" class="btn btn-sm btn-light btn-delete-list" data-list-id="${list.id}">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                </div>
+                <div class="text-muted card-meta small">0 of ${list.tasks.length} tasks</div>
+                <div class="progress" style="height: 7.9px;">
+                    <div class="progress-bar" style="width: 0%;"></div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="task-list">${tasksHTML}</div>
+                    <button type="button" class="btn btn-link btn-sm px-0 text-primary show-more-btn d-none"></button>
+                    <button type="button" class="add-task-toggle">+ Add a task</button>
+                    <div class="add-task-row d-none">
+                        <input type="text" class="form-control form-control-sm task-input" placeholder="Enter task name...">
+                        <button type="button" class="btn btn-add-task btn-sm">Add</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Call loadLists on page load
+    loadLists();
+
+
+    /* =========================
+        CREATE NEW LIST
+    =========================*/
+    document.getElementById('create-list-btn').addEventListener('click', async function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById('new-list-name').value.trim();
+        const category = document.getElementById('new-list-category').value.trim();
+
+        if (!name) return;
+
+        const res = await apiFetch('/lists/', {
+            method: 'POST',
+            body: JSON.stringify({ name, category })
+        });
+
+        if (res.ok) {
+            const list = await res.json();
+            document.getElementById('new-list-name').value = '';
+            document.getElementById('new-list-category').value = '';
+            bootstrap.Modal.getInstance(document.getElementById('createListModal')).hide();
+
+            // Add card directly without reloading
+            const container = document.getElementById('lists-container');
+            const col = document.createElement('div');
+            col.className = 'col h-100';
+            col.setAttribute('data-category', list.category);
+            col.setAttribute('data-list-id', list.id);
+            col.innerHTML = buildCardHTML(list);
+            container.appendChild(col);
+
+            const card = col.querySelector('.list-card');
+            updateProgress(card);
+            setupTaskPreview(card);
+
+            // Add category to sidebar only if it doesn't exist
+            const listTabs = document.getElementById('listTabs');
+            const exists = listTabs.querySelector(`.dynamic-category a[data-filter="${list.category}"]`);
+            if (!exists && list.category) {
+                const li = document.createElement('li');
+                li.className = 'nav-item dynamic-category';
+                li.innerHTML = `
+                    <a href="#" class="nav-link d-flex align-items-center" data-filter="${list.category}">
+                        <i class="bi bi-folder me-2 fs-5"></i> ${list.category}
+                    </a>
+                `;
+                listTabs.appendChild(li);
+
+                li.querySelector('a').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const filter = this.getAttribute('data-filter');
+                    document.querySelectorAll('#listTabs .nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('#lists-container .col').forEach(col => {
+                        col.style.display = filter === 'all' || col.getAttribute('data-category') === filter ? '' : 'none';
+                    });
+                });
+            }
+        }
+    });
+
+
+    /* =========================
+        CLICK OUTSIDE TO CLOSE
+    =========================*/
+    document.addEventListener('click', function (e) {
+        if (
+            !e.target.classList.contains('add-task-toggle') &&
+            !e.target.classList.contains('task-input') &&
+            !e.target.classList.contains('btn-add-task')
+        ) {
+            document.querySelectorAll('.add-task-row').forEach(form => {
+                form.classList.add('d-none');
+            });
+            document.querySelectorAll('.add-task-toggle').forEach(btn => {
+                btn.classList.remove('d-none');
+            });
+        }
+    });
+
+
+    /* =========================
+    MOBILE SIDEBAR TOGGLE
+    ========================*/
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function () {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        });
+
+        overlay.addEventListener('click', function () {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+    }
+
+});

@@ -1,0 +1,14 @@
+# Python virtual environments
+backend/venv/
+
+# Python Cahe
+__pycache__/
+*.pyc
+
+# Node modules
+frontend/node_modules/
+node_modules/
+
+# Editor settings, optional
+.vscode/
+.idea/
