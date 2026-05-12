@@ -41,6 +41,55 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('avatar-username').textContent = username;
     }
 
+
+    /* =========================
+        SEARCH LISTS
+    =========================*/
+    const searchControl = document.getElementById('search-control');
+    const searchBtn = document.getElementById('search-btn');
+    const searchInput = document.getElementById('search-input');
+
+    let activeFilter = 'all';
+    let searchTerm = '';
+
+    function applyListFilters() {
+        document.querySelectorAll('#lists-container .col[data-list-id]').forEach(col => {
+            const category = col.getAttribute('data-category') || '';
+            const categoryMatches = activeFilter === 'all' || category === activeFilter;
+
+            const searchableText = col.textContent.toLowerCase();
+            const searchMatches = !searchTerm || searchableText.includes(searchTerm);
+
+            col.style.display = categoryMatches && searchMatches ? '' : 'none';
+        });
+    }
+
+    searchBtn.addEventListener('click', function () {
+        searchControl.classList.add('open');
+        searchInput.focus();
+    });
+
+    searchInput.addEventListener('input', function () {
+        searchTerm = this.value.trim().toLowerCase();
+        applyListFilters();
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            searchTerm = '';
+            searchControl.classList.remove('open');
+            applyListFilters();
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!searchControl.contains(e.target)){
+            searchControl.classList.remove('open');
+        }
+    });
+
+
     /* =========================
         PROGRESS CALCULATION
     ========================== */
@@ -427,10 +476,15 @@ document.addEventListener('DOMContentLoaded', function () {
     /* =========================
         LOGOUT
     =======================*/
-    document.getElementById('logout-btn').addEventListener('click', function () {
+    document.getElementById('logout-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+
         localStorage.removeItem('token');
+        localStorage.removeItem('username');
+
         window.location.href = 'login.html';
     });
+
 
 
     /* =========================
@@ -446,8 +500,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         this.classList.add('active');
 
-        document.querySelectorAll('#lists-container .col')
-            .forEach(col => col.style.display = '');
+        activeFilter = 'all';
+        applyListFilters();
     });
 
 
@@ -485,13 +539,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 listTabs.appendChild(li);
 
                 li.querySelector('a').addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const filter = this.getAttribute('data-filter');
-                    document.querySelectorAll('#listTabs .nav-link').forEach(l => l.classList.remove('active'));
+                   e.preventDefault();
+
+                    document.querySelectorAll('#listTabs .nav-link')
+                        .forEach(l => l.classList.remove('active'));
+
                     this.classList.add('active');
-                    document.querySelectorAll('#lists-container .col').forEach(col => {
-                        col.style.display = filter === 'all' || col.getAttribute('data-category') === filter ? '' : 'none';
-                    });
+                    activeFilter = this.getAttribute('data-filter');
+                    applyListFilters();
+
                 });
             });
         }
@@ -637,13 +693,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 li.querySelector('a').addEventListener('click', function (e) {
                     e.preventDefault();
-                    const filter = this.getAttribute('data-filter');
-                    document.querySelectorAll('#listTabs .nav-link').forEach(l => l.classList.remove('active'));
+
+                    document.querySelectorAll('#listTabs .nav-link')
+                        .forEach(l => l.classList.remove('active'));
+
                     this.classList.add('active');
-                    document.querySelectorAll('#lists-container .col').forEach(col => {
-                        col.style.display = filter === 'all' || col.getAttribute('data-category') === filter ? '' : 'none';
-                    });
+
+                    activeFilter = this.getAttribute('data-filter');
+                    applyListFilters();
                 });
+
             }
         }
     });

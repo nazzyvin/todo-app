@@ -89,3 +89,18 @@ document.getElementById('register-btn').addEventListener('click', async function
     }
 });
 
+// Enter key for login
+document.getElementById('login-password').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('login-btn').click();
+    }
+});
+
+// Enter key for register
+document.getElementById('register-password').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('register-btn').click();
+    }
+});
