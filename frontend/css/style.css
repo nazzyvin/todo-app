@@ -729,6 +729,83 @@ main {
     color: #dc2626;
 }
 
+/* SETTINGS PAGE */
+.settings-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.settings-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.settings-section .text-muted {
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+.settings-section .form-label {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: #374151;
+}
+
+.settings-section .form-control {
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    background: #f9fafb;
+}
+
+.settings-section .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    background: white;
+}
+
+.settings-section .btn-primary {
+    border-radius: 10px;
+    padding: 9px 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border: none;
+}
+
+.settings-section .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.settings-section .btn-danger {
+    border-radius: 10px;
+    padding: 9px 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 12px hsla(0, 84%, 60%, 0.3);
+}
+
+.settings-section .btn-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5);
+}
+
+.settings-section hr {
+    display: none;
+}
+
+main hr {
+    border-color: transparent;
+}
+
 /* existing login mobile styles */
 @media (max-width: 991.98px) {
     .login-page {
@@ -818,6 +895,7 @@ main {
         position: sticky;
         top: 0;
         z-index: 900;
+        width: 100%;
     }
     .brand-logo {
         width: 34px;

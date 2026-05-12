@@ -60,3 +60,36 @@ class TaskViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(task_list=list_id)
         return queryset
 
+
+@api_view(['PATCH'])
+def update_user(request):
+    user = request.user
+
+    new_username = request.data.get('username')
+    current_password = request.data.get('password')
+    new_password = request.data.get('new_password')
+
+    if new_username:
+        if User.objects.filter(username=new_username).exclude(pk=user.pk).exists():
+            return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        user.username = new_username
+        user.save()
+        return Response({'message': 'Username updated'})
+
+    if current_password and new_password:
+        if not user.check_password(current_password):
+            return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
+        user.set_password(new_password)
+        user.save()
+        Token.objects.filter(user=user).delete()
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({'message': 'Password updated', 'token': token.key})
+
+    return Response({'error': 'No valid fields provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def delete_user(request):
+    user = request.user
+    user.delete()
+    return Response({'message': 'Account deleted'}, status=status.HTTP_204_NO_CONTENT)
