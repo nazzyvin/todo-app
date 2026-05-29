@@ -30,6 +30,26 @@ async function apiFetch(endpoint, options = {}) {
     return res;
 }
 
+// Toast Notification
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('app-toast');
+    const toastMsg = document.getElementById('toast-message');
+
+    toastMsg.textContent = message;
+    toast.className = `toast align-items-center border-0 text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'primary'}`;
+
+    const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+    bsToast.show();
+}
+
+// Format date
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
 
     /* =========================
@@ -84,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.addEventListener('click', function (e) {
-        if (!searchControl.contains(e.target)){
+        if (!searchControl.contains(e.target)) {
             searchControl.classList.remove('open');
         }
     });
@@ -201,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ADD TASK TO CARD
     =========================*/
 
-    function addTaskToCard(card, taskText, taskId = null) {
+    function addTaskToCard(card, taskText, taskId = null, dueDate = null) {
         const taskList = card.querySelector('.task-list');
         if (!taskList || !taskText.trim()) return;
 
@@ -216,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </span>
         <input class="form-check-input" type="checkbox">
         <label class="form-check-label">${taskText}</label>
+        ${dueDate ? `<span class="task-due-date"><i class="bi bi-calendar3 me-1"></i>${dueDate}</span>` : ''}
         <button type="button" class="btn-delete-task">✕</button>
         `;
 
@@ -294,24 +315,32 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!card) return;
 
             const input = card.querySelector('.task-input');
+            const dueInput = card.querySelector('.task-due-input');
             const taskText = input.value.trim();
             const listId = card.closest('.col').getAttribute('data-list-id');
+            const dueDate = dueInput ? dueInput.value : null;
 
             if (!taskText) return;
 
             // Save to API
             apiFetch('/tasks/', {
                 method: 'POST',
-                body: JSON.stringify({ title: taskText, task_list: listId })
+                body: JSON.stringify({
+                    title: taskText,
+                    task_list: listId,
+                    due_date: dueDate || null
+                })
             }).then(res => {
                 if (res.ok) {
                     res.json().then(task => {
-                        addTaskToCard(card, task.title, task.id);
+                        addTaskToCard(card, task.title, task.id, task.due_date);
+                        showToast('Task added!');
                     });
                 }
             });
 
             input.value = '';
+            if (dueInput) dueInput.value = '';
             card.querySelector('.add-task-row').classList.add('d-none');
             card.querySelector('.add-task-toggle').classList.remove('d-none');
         }
@@ -341,23 +370,31 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
 
         const card = input.closest('.list-card');
+        const dueInput = card.querySelector('.task-due-input');
         const taskText = input.value.trim();
         const listId = card.closest('.col').getAttribute('data-list-id');
+        const dueDate = dueInput ? dueInput.value : null;
 
         if (!taskText) return;
 
         apiFetch('/tasks/', {
             method: 'POST',
-            body: JSON.stringify({ title: taskText, task_list: listId })
+            body: JSON.stringify({
+                title: taskText,
+                task_list: listId,
+                due_date: dueDate || null
+            })
         }).then(res => {
             if (res.ok) {
                 res.json().then(task => {
-                    addTaskToCard(card, task.title, task.id);
+                    addTaskToCard(card, task.title, task.id, task.due_date);
+                    showToast('Task added!');
                 });
             }
         });
 
         input.value = '';
+        if (dueInput) dueInput.value = '';
         card.querySelector('.add-task-row').classList.add('d-none');
         card.querySelector('.add-task-toggle').classList.remove('d-none');
     });
@@ -435,6 +472,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         taskRow.remove();
+        showToast('Task deleted', 'error');
         updateProgress(card);
         setupTaskPreview(card);
     });
@@ -455,6 +493,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (confirm('Delete this list and all its tasks?')) {
             apiFetch(`/lists/${listId}/`, { method: 'DELETE' }).then(() => {
                 col.remove();
+                showToast('List deleted', 'error');
 
                 // ✅ FIXED selector (backticks + correct variable)
                 const remaining = document.querySelectorAll(
@@ -539,7 +578,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 listTabs.appendChild(li);
 
                 li.querySelector('a').addEventListener('click', function (e) {
-                   e.preventDefault();
+                    e.preventDefault();
 
                     document.querySelectorAll('#listTabs .nav-link')
                         .forEach(l => l.classList.remove('active'));
@@ -584,19 +623,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         // Show empty state if no lists
         const emptyState = container.querySelector('.empty-state');
-            if (lists.length === 0) {
-                if (!emptyState) {
-                    container.innerHTML = `
+        if (lists.length === 0) {
+            if (!emptyState) {
+                container.innerHTML = `
                         <div class="empty-state text-center py-5 w-100">
                             <i class="bi bi-clipboard2 fs-1 text-muted"></i>
                             <h5 class="mt-3 text-muted">No lists yet</h5>
                             <p class="text-muted small">Click "Create New List" to get started</p>
                         </div>
                     `;
-                }
-            } else {
-                if (emptyState) emptyState.remove();
             }
+        } else {
+            if (emptyState) emptyState.remove();
+        }
     }
 
     // Build card HTML from list data
@@ -610,6 +649,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label class="form-check-label ${task.completed ? 'text-muted text-decoration-line-through' : ''}">
                     ${task.title}
                 </label>
+                ${task.due_date ? `<span class="task-due-date"><i class="bi bi-calendar3 me-1"></i>${formatDate(task.due_date)}</span>` : ''}
                 <button type="button" class="btn-delete-task">✕</button>
             </div>
         `).join('');
@@ -617,10 +657,24 @@ document.addEventListener('DOMContentLoaded', function () {
         return `
             <div class="card list-card">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    ${list.name}
-                    <button type="button" class="btn btn-sm btn-light btn-delete-list" data-list-id="${list.id}">
-                        <i class="bi bi-three-dots-vertical"></i>
-                    </button>
+                    <span class="list-name">${list.name}</span>
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-sm btn-light dropdown-toggle-dots" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item btn-rename-list" href="#" data-list-id="${list.id}">
+                                    <i class="bi bi-pencil me-2"></i>Rename
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger btn-delete-list" href="#" data-list-id="${list.id}">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="text-muted card-meta small">0 of ${list.tasks.length} tasks</div>
                 <div class="progress" style="height: 7.9px;">
@@ -632,6 +686,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <button type="button" class="add-task-toggle">+ Add a task</button>
                     <div class="add-task-row d-none">
                         <input type="text" class="form-control form-control-sm task-input" placeholder="Enter task name...">
+                        <input type="date" class="form-control form-control-sm task-due-input">
                         <button type="button" class="btn btn-add-task btn-sm">Add</button>
                     </div>
                 </div>
@@ -664,6 +719,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('new-list-name').value = '';
             document.getElementById('new-list-category').value = '';
             bootstrap.Modal.getInstance(document.getElementById('createListModal')).hide();
+            showToast('List created successfully!');
 
             // Add card directly without reloading
             const container = document.getElementById('lists-container');
@@ -715,35 +771,88 @@ document.addEventListener('DOMContentLoaded', function () {
         if (
             !e.target.classList.contains('add-task-toggle') &&
             !e.target.classList.contains('task-input') &&
-            !e.target.classList.contains('btn-add-task')
+            !e.target.classList.contains('btn-add-task') &&
+            !e.target.classList.contains('task-due-input') &&
+            !e.target.closest('.add-task-row')
         ) {
-            document.querySelectorAll('.add-task-row').forEach(form => {
-                form.classList.add('d-none');
-            });
-            document.querySelectorAll('.add-task-toggle').forEach(btn => {
-                btn.classList.remove('d-none');
-            });
-        }
-    });
-
-
-    /* =========================
-    MOBILE SIDEBAR TOGGLE
-    ========================*/
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function () {
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('show');
+        document.querySelectorAll('.add-task-row').forEach(form => {
+            form.classList.add('d-none');
         });
-
-        overlay.addEventListener('click', function () {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('show');
+        document.querySelectorAll('.add-task-toggle').forEach(btn => {
+            btn.classList.remove('d-none');
         });
     }
+
+    /* =========================
+        RENAME LIST
+    =========================*/
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-rename-list');
+        if (!btn) return;
+        e.preventDefault();
+
+        const listId = btn.getAttribute('data-list-id');
+        const col = document.querySelector(`.col[data-list-id="${listId}"]`);
+        const nameEl = col.querySelector('.list-name');
+        const currentName = nameEl.textContent;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentName;
+        input.className = 'form-control form-control-sm list-rename-input';
+
+        nameEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        async function saveRename() {
+            const newName = input.value.trim();
+            if (!newName || newName === currentName) {
+                input.replaceWith(nameEl);
+                return;
+            }
+
+            const res = await apiFetch(`/lists/${listId}/`, {
+                method: 'PATCH',
+                body: JSON.stringify({ name: newName })
+            });
+
+            if (res.ok) {
+                nameEl.textContent = newName;
+                input.replaceWith(nameEl);
+                showToast('List renamed!');
+            } else {
+                input.replaceWith(nameEl);
+                showToast('Failed to rename list', 'error');
+            }
+        }
+
+        input.addEventListener('blur', saveRename);
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); saveRename(); }
+            if (e.key === 'Escape') { input.replaceWith(nameEl); }
+        });
+    });
+});
+
+
+/* =========================
+MOBILE SIDEBAR TOGGLE
+========================*/
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebar = document.querySelector('.sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+
+if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', function () {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+    });
+
+    overlay.addEventListener('click', function () {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+    });
+}
 
 });

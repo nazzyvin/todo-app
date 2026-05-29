@@ -266,6 +266,24 @@ main {
     padding: 20px 0 0;
 }
 
+.list-rename-input {
+    font-weight: 600;
+    font-size: 1.15rem;
+    border: none;
+    border-bottom: 2px solid #3b82f6;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    width: 100%;
+}
+
+.list-rename-input:focus {
+    box-shadow: none;
+    outline: none;
+    background: transparent;
+}
+
 .progress {
     height: 9px;
     margin-top: 6px;
@@ -437,7 +455,7 @@ main {
     margin-left: auto;
     flex-shrink: 0;
     all: unset;
-    color: #ffffff;
+    color: #c7c7c7;
     cursor: pointer;
     font-size: 14px;
 
@@ -455,6 +473,17 @@ main {
     color: #ef4444;
 }
 
+.task-due-date {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.task-due-input {
+    max-width: 140px;
+    flex-shrink: 0;
+}
 
 .task-hidden {
     display: none !important

@@ -31,6 +31,15 @@ function showMsg(elId, message, success = true) {
     setTimeout(() => el.classList.add('d-none'), 3000);
 }
 
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('app-toast');
+    const toastMsg = document.getElementById('toast-message');
+    toastMsg.textContent = message;
+    toast.className = `toast align-items-center border-0 text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'primary'}`;
+    const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+    bsToast.show();
+}
+
 // Change username
 document.getElementById('update-username-btn').addEventListener('click', async function() {
     const newUsername = document.getElementById('new-username').value.trim();
@@ -50,11 +59,11 @@ document.getElementById('update-username-btn').addEventListener('click', async f
         document.getElementById('avatar-initial').textContent = newUsername[0].toUpperCase();
         document.getElementById('avatar-username').textContent = newUsername;
         document.getElementById('new-username').value = '';
-        document.getElementById('new-username').placeholder = `Current: ${newUsername}`;
-        showMsg('username-msg', 'Username updated successfully!');
+        document.getElementById('new-username').placeholder = `Current: ${newUsername}`
+        showToast('Username updated successfully!');
     } else {
         const data = await res.json();
-        showMsg('username-msg', data.error || 'Failed to update username', false);
+        showToast(data.error || 'Failed to update username', 'error');
     }
 });
 
@@ -83,10 +92,11 @@ document.getElementById('update-password-btn').addEventListener('click', async f
         }
         document.getElementById('current-password').value = '';
         document.getElementById('new-password').value = '';
-        showMsg('password-msg', 'Password updated successfully!');
+        showToast('Password updated successfully!');
+        
     } else {
         const data = await res.json();
-        showMsg('password-msg', data.error || 'Failed to update password', false);
+        showToast(data.error || 'Failed to update password', 'error');
     }
 });
 
