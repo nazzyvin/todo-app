@@ -827,8 +827,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        input.addEventListener('blur', saveRename);
-        input.addEventListener('keydown', function(e) {
+            input.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') { e.preventDefault(); saveRename(); }
             if (e.key === 'Escape') { input.replaceWith(nameEl); }
         });
