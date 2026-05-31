@@ -154,7 +154,7 @@ Update the port if Live Server opens on a different one.
 
 ## Author
 
-**Naz-k Vincent** — [@NazzyVin](https://github.com/NazzyVin)
+**Naz-k Vincent** — [@nazzyVin](https://github.com/nazzyVin)
 
 ---
 
