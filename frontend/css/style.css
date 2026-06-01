@@ -635,6 +635,39 @@ main {
         linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.94));
 }
 
+.mobile-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.mobile-brand .brand-icon {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 1.6rem;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow:
+        0 5px 12px rgba(95, 167, 255, 0.35),
+        inset 0 1px 8px rgba(255,255,255,0.35);
+
+    font-size: 2.1rem;
+    color: white;
+    
+}
+
+.mobile-brand h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    margin-bottom: 0.3rem;
+}
 .login-box {
     width: 100%;
     max-width: 380px;
@@ -860,6 +893,27 @@ main hr {
 
 /* NEW - main app mobile styles */
 @media (max-width: 991.98px) {
+
+    .login-left {
+        display: none !important;
+    }
+
+    .login-right {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.96), rgba(29, 78, 216, 0.98));
+    }
+
+    .login-box {
+        padding: 1.4rem;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.24);
+    }
+    
     .sidebar {
         position: fixed;
         top: 0;
