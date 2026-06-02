@@ -101,6 +101,9 @@ document.addEventListener('DOMContentLoaded', function () {
             searchControl.classList.remove('open');
             applyListFilters();
         }
+        if (e.key === 'Enter') {
+            searchControl.classList.remove('remove');
+        }
     });
 
     document.addEventListener('click', function (e) {
