@@ -160,4 +160,4 @@ Update the port if Live Server opens on a different one.
 
 ## License
 
-All rights reserved © 2026 Naz-k Vincent.
+© 2026 Naz-k Vincent. All rights reserved.
