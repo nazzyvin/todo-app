@@ -160,4 +160,4 @@ Update the port if Live Server opens on a different one.
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+All rights reserved © 2026 Naz-k Vincent.

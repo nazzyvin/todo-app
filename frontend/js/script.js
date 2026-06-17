@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
             applyListFilters();
         }
         if (e.key === 'Enter') {
-            searchControl.classList.remove('remove');
+            searchControl.classList.remove('open');
         }
     });
 
@@ -239,10 +239,24 @@ document.addEventListener('DOMContentLoaded', function () {
         </span>
         <input class="form-check-input" type="checkbox">
         <label class="form-check-label">${taskText}</label>
-        ${dueDate ? `<span class="task-due-date"><i class="bi bi-calendar3 me-1"></i>${dueDate}</span>` : ''}
-        <button type="button" class="btn-delete-task">✕</button>
+        <div class="task-actions dropdown">
+            <button type="button" class="btn-task-menu" data-bs-toggle="dropdown">
+                <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item btn-edit-task" href="#">
+                        <i class="bi bi-pencil me-2"></i>Edit
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item text-danger btn-delete-task" href="#">
+                        <i class="bi bi-trash me-2"></i>Delete
+                    </a>
+                </li>
+            </ul>
+        </div>
         `;
-
         taskList.appendChild(taskRow);
         taskRow.setAttribute('draggable', 'true');
 
@@ -463,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
     =========================*/
 
     document.addEventListener('click', function (e) {
-        if (!e.target.classList.contains('btn-delete-task')) return;
+        if (!e.target.classList.contains('btn-delete-task') && !e.target.closest('.btn-delete-task')) return;
         e.preventDefault();
 
         const taskRow = e.target.closest('.task-row');
@@ -644,17 +658,33 @@ document.addEventListener('DOMContentLoaded', function () {
     // Build card HTML from list data
     function buildCardHTML(list) {
         const tasksHTML = list.tasks.map(task => `
-            <div class="task-row" data-task-id="${task.id}">
-                <span class="task-handle">
-                    <i class="bi bi-grip-vertical"></i>
-                </span>
-                <input class="form-check-input" type="checkbox" ${task.completed ? 'checked' : ''}>
-                <label class="form-check-label ${task.completed ? 'text-muted text-decoration-line-through' : ''}">
-                    ${task.title}
-                </label>
-                ${task.due_date ? `<span class="task-due-date"><i class="bi bi-calendar3 me-1"></i>${formatDate(task.due_date)}</span>` : ''}
-                <button type="button" class="btn-delete-task">✕</button>
-            </div>
+                <div class="task-row" data-task-id="${task.id} draggable="true">
+                    <span class="task-handle">
+                        <i class="bi bi-grip-vertical"></i>
+                    </span>
+                    <input class="form-check-input" type="checkbox" ${task.completed ? 'checked' : ''}>
+                    <label class="form-check-label ${task.completed ? 'text-muted text-decoration-line-through' : ''}">
+                        ${task.title}
+                    </label>
+                    ${task.due_date ? `<span class="task-due-date"><i class="bi bi-calendar3 me-1"></i>${formatDate(task.due_date)}</span>` : ''}
+                    <div class="task-actions dropdown">
+                        <button type="button" class="btn-task-menu" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item btn-edit-task" href="#">
+                                    <i class="bi bi-pencil me-2"></i>Edit
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger btn-delete-task" href="#">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
         `).join('');
 
         return `
@@ -778,13 +808,14 @@ document.addEventListener('DOMContentLoaded', function () {
             !e.target.classList.contains('task-due-input') &&
             !e.target.closest('.add-task-row')
         ) {
-        document.querySelectorAll('.add-task-row').forEach(form => {
-            form.classList.add('d-none');
-        });
-        document.querySelectorAll('.add-task-toggle').forEach(btn => {
-            btn.classList.remove('d-none');
-        });
-    }
+            document.querySelectorAll('.add-task-row').forEach(form => {
+                form.classList.add('d-none');
+            });
+            document.querySelectorAll('.add-task-toggle').forEach(btn => {
+                btn.classList.remove('d-none');
+            });
+        }
+    });
 
     /* =========================
         RENAME LIST
@@ -835,26 +866,76 @@ document.addEventListener('DOMContentLoaded', function () {
             if (e.key === 'Escape') { input.replaceWith(nameEl); }
         });
     });
+
+
+    /* =========================
+        EDIT TASK
+    =========================*/
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-edit-task');
+        if (!btn) return;
+        e.preventDefault();
+    
+        const taskRow = btn.closest('.task-row');
+        const taskId = taskRow.getAttribute('data-task-id');
+        const label = taskRow.querySelector('.form-check-label');
+        const currentText = label.textContent.trim();
+    
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.className = 'form-control form-control-sm task-edit-input';
+    
+        label.replaceWith(input);
+        input.focus();
+        input.select();
+    
+        async function saveEdit() {
+            const newText = input.value.trim();
+            if (!newText || newText === currentText) {
+                input.replaceWith(label);
+                return;
+            }
+    
+            const res = await apiFetch(`/tasks/${taskId}/`, {
+                method: 'PATCH',
+                body: JSON.stringify({ title: newText })
+            });
+    
+            if (res.ok) {
+                label.textContent = newText;
+                input.replaceWith(label);
+                showToast('Task updated!');
+            } else {
+                input.replaceWith(label);
+                showToast('Failed to update task', 'error');
+            }
+        }
+    
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); saveEdit(); }
+            if (e.key === 'Escape') { input.replaceWith(label); }
+        });
+    });
+    
+    
+    /* =========================
+    MOBILE SIDEBAR TOGGLE
+    ========================*/
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function () {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        });
+
+        overlay.addEventListener('click', function () {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+    }
 });
 
-
-/* =========================
-MOBILE SIDEBAR TOGGLE
-========================*/
-const sidebarToggle = document.getElementById('sidebar-toggle');
-const sidebar = document.querySelector('.sidebar');
-const overlay = document.getElementById('sidebar-overlay');
-
-if (sidebarToggle) {
-    sidebarToggle.addEventListener('click', function () {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('show');
-    });
-
-    overlay.addEventListener('click', function () {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('show');
-    });
-}
-
-});
