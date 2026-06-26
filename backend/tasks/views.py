@@ -1,4 +1,5 @@
 from rest_framework import viewsets, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -54,11 +55,26 @@ class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
 
     def get_queryset(self):
-        queryset = Task.objects.filter(task_list__user=self.request.user)
+        queryset = Task.objects.filter(
+            task_list__user=self.request.user
+        )
+
         list_id = self.request.query_params.get('list_id')
+
         if list_id:
             queryset = queryset.filter(task_list=list_id)
+
         return queryset
+
+    def perform_create(self, serializer):
+        task_list = serializer.validated_data['task_list']
+
+        if task_list.user != self.request.user:
+            raise PermissionDenied(
+                "You cannot add tasks to another user's list."
+            )
+
+        serializer.save()
 
 
 @api_view(['PATCH'])

@@ -1,4 +1,4 @@
-# TaskFlow - ToDo List
+# BlueFlow - ToDo List
 
 A full-stack to-do list application built with Django REST Framework and vanilla JavaScript.
 

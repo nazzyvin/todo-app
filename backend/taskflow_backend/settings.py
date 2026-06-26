@@ -34,7 +34,7 @@ INSTALLED_APPS = [
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%fv*gp!=eh+3-qspbvxm&9ba54@$14e%a%vc)*c2o$t+ns!54('
+SECRET_KEY = 'j(fs22rg*_mfy98#0czkz^#*%8+lcs@g+ij_zchn7p)x@@6j8x'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
