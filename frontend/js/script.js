@@ -739,7 +739,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item btn-rename-list" href="#" data-list-id="${list.id}">
-                                    <i class="bi bi-pencil me-2"></i>Rename
+                                    <i class="bi bi-pencil me-2"></i>Edit
                                 </a>
                             </li>
                             <li>
@@ -900,12 +900,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 input.replaceWith(nameEl);
                 showToast('Failed to rename list', 'error');
             }
+            
         }
-
             input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); saveRename(); }
-            if (e.key === 'Escape') { input.replaceWith(nameEl); }
-        });
+                if (e.key === 'Enter') { e.preventDefault(); saveRename(); }
+                if (e.key === 'Escape') { input.replaceWith(nameEl); }
+            });
+            
+            input.addEventListener('blur', function() {
+                input.replaceWith(nameEl);
+            });
     });
 
 
@@ -956,6 +960,10 @@ document.addEventListener('DOMContentLoaded', function () {
         input.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') { e.preventDefault(); saveEdit(); }
             if (e.key === 'Escape') { input.replaceWith(label); }
+        });
+
+        input.addEventListener('blur', function() {
+            input.replaceWith(label);
         });
     });
     

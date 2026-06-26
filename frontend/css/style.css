@@ -71,7 +71,8 @@
     border-color: #2d3748;
 }
 
-[data-theme="dark"] .dropdown-item, .dropdown-item-text {
+[data-theme="dark"] .dropdown-item,
+[data-theme="dark"] .dropdown-item-text {
     color: #cbd5e1;
 }
 
@@ -1254,10 +1255,6 @@ main hr {
     .card-header {
         font-size: 0.98rem;
         line-height: 1.2;
-    }
-
-    .btn-delete-list {
-        padding: 2px 4px;
     }
 
     .card-meta {
