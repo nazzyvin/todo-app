@@ -61,47 +61,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('avatar-username').textContent = username;
     }
 
-    /* =========================
-        THEME TOGGLE
-    =========================*/
-    const themeIcon = document.getElementById('theme-icon');
-
-    function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeIcon.className = 'bi bi-moon-fill';
-        } else if (theme === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            themeIcon.className = 'bi bi-sun-fill';
-        } else {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-            themeIcon.className = 'bi bi-circle-half';
-        }
-        localStorage.setItem('theme', theme);
-
-        // Update active state in dropdown
-        document.querySelectorAll('.theme-option').forEach(opt => {
-            opt.classList.toggle('active', opt.getAttribute('data-theme-value') === theme);
-        });
-    }
-
-    document.querySelectorAll('.theme-option').forEach(opt => {
-        opt.addEventListener('click', function(e) {
-            e.preventDefault();
-            applyTheme(this.getAttribute('data-theme-value'));
-        });
-    });
-
-    // Apply saved theme on load
-    applyTheme(localStorage.getItem('theme') || 'system');
-
-    // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
-        if (localStorage.getItem('theme') === 'system') {
-            applyTheme('system');
-        }
-    });
 
     /* =========================
         SEARCH LISTS

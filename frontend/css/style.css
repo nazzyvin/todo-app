@@ -100,6 +100,16 @@
     border-top-color: #2d3748 !important;
 }
 
+[data-theme="dark"] .settings-section .form-control {
+    color: var(--text-dark);
+    background: #0f1117;
+    border-color: #2d3748;
+}
+
+[data-theme="dark"] .settings-section .form-control:focus {
+    background: #1a1d2e;
+}
+
 [data-theme="light"] {
     --soft-gray: #f5f5f5;
     --text-dark: #1f2937;
@@ -961,7 +971,7 @@ main {
 
 /* SETTINGS PAGE */
 .settings-section {
-    background: white;
+    background: var(--bg-card);
     border-radius: 16px;
     padding: 2rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -970,7 +980,7 @@ main {
 .settings-title {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--text-dark);
     margin-bottom: 0.25rem;
 }
 
@@ -982,7 +992,7 @@ main {
 .settings-section .form-label {
     font-weight: 600;
     font-size: 0.82rem;
-    color: #374151;
+    color: var(--text-dark);
 }
 
 .settings-section .form-control {
@@ -990,13 +1000,13 @@ main {
     border: 1.5px solid #e5e7eb;
     padding: 10px 14px;
     font-size: 0.9rem;
-    background: #f9fafb;
+    background: var(--bg-card);
 }
 
 .settings-section .form-control:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    background: white;
+    background: var(--bg-card);
 }
 
 .settings-section .btn-primary {
@@ -1169,6 +1179,7 @@ main hr {
     main {
         padding: 1rem !important;
     }
+    
 }
 
 @media (max-width: 575.98px) {
