@@ -1,8 +1,8 @@
-const API = 'http://127.0.0.1:8000/api';
+const API = '/api';
 
 // If already logged in, go straight to app
 if (localStorage.getItem('token')) {
-    window.location.href = 'index.html';
+    window.location.href = '/';
 }
 
 function showError(message) {
@@ -59,7 +59,7 @@ document.getElementById('login-btn').addEventListener('click', async function() 
     if (res.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', username);
-        window.location.href = 'index.html';
+        window.location.href = '/';
     } else {
         showError(data.error || 'Login failed');
     }
@@ -83,7 +83,7 @@ document.getElementById('register-btn').addEventListener('click', async function
     if (res.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', username);
-        window.location.href = 'index.html';
+        window.location.href = '/';
     } else {
         showError(data.error || 'Registration failed');
     }

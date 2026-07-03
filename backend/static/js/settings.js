@@ -1,4 +1,4 @@
-const API = 'http://127.0.0.1:8000/api';
+const API = '/api';
 
 // Redirect to login if no token
 const token = localStorage.getItem('token');

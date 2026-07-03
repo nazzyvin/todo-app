@@ -1,16 +1,9 @@
-// console.log('SCRIPT LOADED', new Date().toLocaleTimeString());
-
-// window.addEventListener('beforeunload', function () {
-//     console.log('PAGE IS RELOADING');
-// });
-
-
-const API = 'http://127.0.0.1:8000/api';
+const API = '/api';
 
 // Redirect to login if no token
 const token = localStorage.getItem('token');
 if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = '/login/';
 }
 
 // Helper function for API calls
@@ -25,7 +18,7 @@ async function apiFetch(endpoint, options = {}) {
     });
     if (res.status === 401) {
         localStorage.removeItem('token');
-        window.location.href = 'login.html';
+        window.location.href = '/login/';
     }
     return res;
 }
@@ -538,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
 
-        window.location.href = 'login.html';
+        window.location.href = '/login/';
     });
 
 

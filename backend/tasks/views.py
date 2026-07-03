@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.shortcuts import render
 from .models import List, Task
 from .serializers import ListSerializer, TaskSerializer
 
@@ -109,3 +110,15 @@ def delete_user(request):
     user = request.user
     user.delete()
     return Response({'message': 'Account deleted'}, status=status.HTTP_204_NO_CONTENT)
+
+
+def home(request):
+    return render(request, "index.html")
+
+
+def login_page(request):
+    return render(request, "login.html")
+
+
+def settings_page(request):
+    return render(request, "settings.html")

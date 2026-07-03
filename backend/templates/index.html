@@ -1,14 +1,16 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="js/theme.js"></script>
+    <script src="{% static 'js/theme.js' %}"></script>
     <title>BlueFlow - ToDo List</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
 <body>
@@ -36,7 +38,7 @@
 
                 <!-- Push settings to bottom -->
                 <div class="mt-auto pt-3 border-top">
-                    <a href="settings.html" class="nav-link text-muted settings d-flex align-items-center">
+                    <a href="/settings/" class="nav-link text-muted settings d-flex align-items-center">
                         <i class="bi bi-gear me-2 fs-6"></i> Settings
                     </a>
                 </div>
@@ -165,7 +167,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
 </body>
 
 </html>
