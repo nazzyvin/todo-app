@@ -3,7 +3,7 @@ const API = '/api';
 // Redirect to login if no token
 const token = localStorage.getItem('token');
 if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = '/login/';
 }
 
 // Set avatar
@@ -19,7 +19,7 @@ document.getElementById('logout-btn').addEventListener('click', function(e) {
     e.preventDefault();
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    window.location.href = 'login.html';
+    window.location.href = '/login/';
 });
 
 // Helper to show messages
