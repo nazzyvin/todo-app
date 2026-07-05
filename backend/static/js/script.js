@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!card) return;
 
             const input = card.querySelector('.task-input');
-            const dueInput = card.querySelector('.task-due-input');
+            const dueInput = card.querySelector('.add-task-row .task-due-input');
             const taskText = input.value.trim();
             const listId = card.closest('.col').getAttribute('data-list-id');
             const dueDate = dueInput ? dueInput.value : null;
@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
 
         const card = input.closest('.list-card');
-        const dueInput = card.querySelector('.task-due-input');
+        const dueInput = card.querySelector('.add-task-row .task-due-input');
         const taskText = input.value.trim();
         const listId = card.closest('.col').getAttribute('data-list-id');
         const dueDate = dueInput ? dueInput.value : null;
@@ -651,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Build card HTML from list data
     function buildCardHTML(list) {
         const tasksHTML = list.tasks.map(task => `
-                <div class="task-row" data-task-id="${task.id} draggable="true">
+                <div class="task-row" data-task-id="${task.id}" draggable="true">
                     <span class="task-handle">
                         <i class="bi bi-grip-vertical"></i>
                     </span>
@@ -712,7 +712,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     <button type="button" class="add-task-toggle">+ Add a task</button>
                     <div class="add-task-row d-none">
                         <input type="text" class="form-control form-control-sm task-input" placeholder="Enter task name...">
-                        <input type="date" class="form-control form-control-sm task-due-input">
+                        <label class="task-date-btn" title="Set due date">
+                            <i class="bi bi-calendar3"></i>
+                            <input type="date" class="task-due-input">
+                        </label>
                         <button type="button" class="btn btn-add-task btn-sm">Add</button>
                     </div>
                 </div>
