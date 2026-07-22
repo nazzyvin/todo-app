@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ADD TASK TO CARD
     =========================*/
 
-    function addTaskToCard(card, taskText, taskId = null, dueDate = null) {
+    function addTaskToCard(card, taskText, taskId = null, dueDate = null, priority = 'medium') {
         const taskList = card.querySelector('.task-list');
         if (!taskList || !taskText.trim()) return;
 
@@ -232,6 +232,8 @@ document.addEventListener('DOMContentLoaded', function () {
         </span>
         <input class="form-check-input" type="checkbox">
         <label class="form-check-label">${taskText}</label>
+        <span class="priority-badge ${priority}">${priority}</span>
+        ${dueDate ? `<span class="task-due-date"><i class="bi bi-calendar3 me-1"></i>${formatDate(dueDate)}</span>` : ''}
         <div class="task-actions dropdown">
             <button type="button" class="btn-task-menu" data-bs-toggle="dropdown">
                 <i class="bi bi-three-dots"></i>
@@ -326,9 +328,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const input = card.querySelector('.task-input');
             const dueInput = card.querySelector('.add-task-row .task-due-input');
+            const prioritySelect = card.querySelector('.add-task-row .task-priority-select');
             const taskText = input.value.trim();
             const listId = card.closest('.col').getAttribute('data-list-id');
             const dueDate = dueInput ? dueInput.value : null;
+            const priority = prioritySelect ? prioritySelect.value : 'medium';
 
             if (!taskText) return;
 
@@ -338,12 +342,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify({
                     title: taskText,
                     task_list: listId,
-                    due_date: dueDate || null
+                    due_date: dueDate || null,
+                    priority: priority
                 })
             }).then(res => {
                 if (res.ok) {
                     res.json().then(task => {
-                        addTaskToCard(card, task.title, task.id, task.due_date);
+                        addTaskToCard(card, task.title, task.id, task.due_date, task.priority);
                         showToast('Task added!');
                     });
                 }
@@ -351,6 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             input.value = '';
             if (dueInput) dueInput.value = '';
+            if (prioritySelect) prioritySelect.value = 'medium';
             card.querySelector('.add-task-row').classList.add('d-none');
             card.querySelector('.add-task-toggle').classList.remove('d-none');
         }
@@ -381,9 +387,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const card = input.closest('.list-card');
         const dueInput = card.querySelector('.add-task-row .task-due-input');
+        const prioritySelect = card.querySelector('.add-task-row .task-priority-select');
         const taskText = input.value.trim();
         const listId = card.closest('.col').getAttribute('data-list-id');
         const dueDate = dueInput ? dueInput.value : null;
+        const priority = prioritySelect ? prioritySelect.value : 'medium';
 
         if (!taskText) return;
 
@@ -392,12 +400,13 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({
                 title: taskText,
                 task_list: listId,
-                due_date: dueDate || null
+                due_date: dueDate || null,
+                priority: priority
             })
         }).then(res => {
             if (res.ok) {
                 res.json().then(task => {
-                    addTaskToCard(card, task.title, task.id, task.due_date);
+                    addTaskToCard(card, task.title, task.id, task.due_date, task.priority);
                     showToast('Task added!');
                 });
             }
@@ -405,6 +414,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         input.value = '';
         if (dueInput) dueInput.value = '';
+        if (prioritySelect) prioritySelect.value = 'medium';
         card.querySelector('.add-task-row').classList.add('d-none');
         card.querySelector('.add-task-toggle').classList.remove('d-none');
     });
@@ -659,6 +669,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <label class="form-check-label ${task.completed ? 'text-muted text-decoration-line-through' : ''}">
                         ${task.title}
                     </label>
+                    <span class="priority-badge ${task.priority || 'medium'}">${task.priority || 'medium'}</span>
                     ${task.due_date ? `<span class="task-due-date"><i class="bi bi-calendar3 me-1"></i>${formatDate(task.due_date)}</span>` : ''}
                     <div class="task-actions dropdown">
                         <button type="button" class="btn-task-menu" data-bs-toggle="dropdown">
@@ -716,6 +727,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             <i class="bi bi-calendar3"></i>
                             <input type="date" class="task-due-input">
                         </label>
+                        <select class="task-priority-select" title="Set priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
                         <button type="button" class="btn btn-add-task btn-sm">Add</button>
                     </div>
                 </div>

@@ -11,9 +11,15 @@ class List(models.Model):
 
 
 class Task(models.Model):
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'), 
+        ('high', 'High'),
+    ]
     task_list = models.ForeignKey(List, on_delete=models.CASCADE, related_name="tasks")
     title = models.CharField(max_length=255)
     completed = models.BooleanField(default=False)
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     due_date = models.DateTimeField(null=True, blank=True)
