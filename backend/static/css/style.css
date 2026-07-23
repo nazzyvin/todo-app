@@ -1145,7 +1145,189 @@ main {
     color: #dc2626;
 }
 
-/* SETTINGS PAGE */
+
+/* =========================
+    DASHBOARD
+=========================*/
+.stat-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 1.2rem;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.bg-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.bg-purple { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+.bg-green { background: linear-gradient(135deg, #10b981, #059669); }
+.bg-orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.dash-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    height: 100%;
+}
+
+.dash-card-title {
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1.2rem;
+    font-size: .95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5em;
+}
+
+.progress-ring-wrapper {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto;
+    background: 
+        radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%),
+        var(--soft-gray);
+    border-radius: 50%;
+}
+
+.progress-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+    fill: none;
+    stroke: var(--border-white);
+    stroke-width: 10;
+}
+
+.progress-ring-fill {
+    fill: none;
+    stroke: url(#blueGradient);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 314;
+    stroke-dashoffset: 314;
+    transition: stroke-dashoffset 600ms ease;
+}
+
+.progress-ring-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.progress-ring-label span {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    display: block;
+}
+
+.progress-ring-label small {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.due-today-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.due-today-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--soft-gray);
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+.due-today-empty {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+.list-overview-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-white);
+}
+
+.list-overview-item:last-child {
+    border-bottom: none;
+}
+
+.list-overview-name {
+    font-weight: 600;
+    font-size: .9rem;
+    color: var(--text-dark);
+    min-width: 120px;
+}
+
+.list-overview-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--border-white);
+    border-radius: 20px;
+    overflow: hidden;;
+}
+
+.list-overview-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: 20px;
+    transition: width 600ms ease;
+}
+
+.list-overview-count {
+    font-size: 0.8rem;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+
+/* =========================
+    SETTINGS PAGE
+=========================*/
 .settings-section {
     background: var(--bg-card);
     border-radius: 16px;

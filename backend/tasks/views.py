@@ -122,3 +122,6 @@ def login_page(request):
 
 def settings_page(request):
     return render(request, "settings.html")
+
+def dashboard_page(request):
+    return render(request, "dashboard.html")

@@ -24,6 +24,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('login/', views.login_page, name='login_page'),
     path('settings/', views.settings_page, name='settings_page'),
+    path('dashboard/', views.dashboard_page, name="dashboard_page"),
 
     path('api/', include('tasks.urls')),
 ]
