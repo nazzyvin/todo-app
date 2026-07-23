@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Build card HTML from list data
     function buildCardHTML(list) {
         const tasksHTML = list.tasks.map(task => `
-                <div class="task-row" data-task-id="${task.id}" draggable="true">
+                <div class="task-row" data-task-id="${task.id}" data-priority="${task.priority || 'medium'}" draggable="true">
                     <span class="task-handle">
                         <i class="bi bi-grip-vertical"></i>
                     </span>
