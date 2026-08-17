@@ -768,6 +768,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Add card directly without reloading
             const container = document.getElementById('lists-container');
+
+            // Remove empty state if it exists
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+
             const col = document.createElement('div');
             col.className = 'col h-100';
             col.setAttribute('data-category', list.category);
