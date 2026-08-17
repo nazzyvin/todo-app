@@ -959,3 +959,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+// Register service worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/service-worker.js')
+        .then(reg => console.log('SW registered'))
+        .catch(err => console.log('SW failed:', err));
+    });
+}

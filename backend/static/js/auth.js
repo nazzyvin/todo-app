@@ -104,3 +104,12 @@ document.getElementById('register-password').addEventListener('keydown', functio
         document.getElementById('register-btn').click();
     }
 });
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/service-worker.js')
+        .then(reg => console.log('SW registered'))
+        .catch(err => console.log('SW failed:', err));
+    });
+}
