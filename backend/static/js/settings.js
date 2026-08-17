@@ -117,7 +117,7 @@ document.getElementById('delete-account-btn').addEventListener('click', async fu
     if (res.ok) {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
-        window.location.href = 'login.html';
+        window.location.href = '/login/';
     } else {
         alert('Failed to delete account. Please try again.');
     }

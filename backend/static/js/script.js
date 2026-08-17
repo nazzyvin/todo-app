@@ -515,16 +515,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 col.remove();
                 showToast('List deleted', 'error');
 
-                // ✅ FIXED selector (backticks + correct variable)
-                const remaining = document.querySelectorAll(
-                    `#lists-container .col[data-category="${category}"]`
-                );
+                const container = document.getElementById('lists-container');
+                const remaining = container.querySelectorAll('.col[data-list-id]');
 
                 if (remaining.length === 0) {
-                    const catLink = document.querySelector(
-                        `#listTabs .dynamic-category a[data-filter="${category}"]`
+                    container.innerHTML = `
+                        <div class="empty-state text-center py-5 w-100">
+                            <i class="bi bi-clipboard2 fs-1 text-muted"></i>
+                            <h5 class="mt-3 text-muted">No lists yet</h5>
+                            <p class="text-muted small">Click "Create New List" to get started</p>
+                        </div>
+                    `;
+                } else {
+                    const remainingCat = document.querySelectorAll(
+                        `#lists-container .col[data-category="${category}"]`
                     );
-                    if (catLink) catLink.closest('.nav-item').remove();
+                    if (remainingCat.length === 0) {
+                        const catLink = document.querySelector(
+                            `#listTabs .dynamic-category a[data-filter="${category}"]`
+                        );
+                        if (catLink) catLink.closest('.nav-item').remove();
+                    }
                 }
             });
         }
