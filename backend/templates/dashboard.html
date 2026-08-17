@@ -16,6 +16,7 @@
     <link rel="icon" type="image/png" href="{% static 'icons/favicon-96x96.png' %}" sizes="96x96">
     <link rel="shortcut icon" href="{% static 'icons/favicon.ico' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icons/apple-touch-icon.png' %}">
+    <!-- PWA -->
     <meta name="theme-color" content="#3b82f6">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -35,6 +36,11 @@
                 <li class="nav-item">
                     <a href="/dashboard/" class="nav-link active d-flex align-items-center">
                         <i data-lucide="chart-column" style="width:18px;height:18px;" class="me-2 fs-5"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/calendar/" class="nav-link d-flex align-items-center">
+                        <i class="bi bi-calendar3 me-2 fs-5"></i> Calendar
                     </a>
                 </li>
                 <li class="nav-item">

@@ -1276,6 +1276,187 @@ main {
 
 
 /* =========================
+    CALENDAR
+========================= */
+.cal-header {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cal-month-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.cal-grid-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.cal-day-headers {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 0.5rem;
+}
+
+.cal-day-headers div {
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #6b7280;
+    padding: 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.cal-cell {
+    min-height: 90px;
+    padding: 6px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 150ms ease;
+    border: 1.5px solid transparent;
+}
+
+.call-cell:hover {
+    background: var(--soft-gray);
+}
+
+.cal-cell.empty {
+    cursor: default;
+    pointer-events: none;
+}
+
+.call-cell.today {
+    background: #3b82f6;
+    background: rgba(59, 130, 246, 0.04);
+}
+
+.call-cell.has-tasks {
+    background: rgba(59, 130, 246, 0.04);
+}
+
+.cal-day-num {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-top: 4px;
+}
+
+.cal-cell.today .cal-day-num {
+    color: #3b82f6;
+}
+
+.cal-task-chip {
+    font-size: 0.68rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500
+}
+
+.priority-chip-low {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.priority-chip-medium {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.priority-chip-high {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.cal-task-chip.completed {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.cal-more {
+    font-size: 0.68rem;
+    color: #6b7280;
+    padding: 1px 4px;
+}
+
+.cal-task-panel {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.cal-task-panel-title {
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.cal-task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cal-task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--soft-gray);
+    font-size: 0.9rem;
+}
+
+.cal-task-item.completed .cal-task-title {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.cal-task-title {
+    flex: 1;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.cal-task-list-name {
+    font-size: 0.78rem;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+.cal-task-empty {
+    color: #9ca3af;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+
+/* =========================
     SETTINGS PAGE
 =========================*/
 .settings-section {

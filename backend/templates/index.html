@@ -38,6 +38,7 @@
     <link rel="icon" type="image/png" href="{% static 'icons/favicon-96x96.png' %}" sizes="96x96">
     <link rel="shortcut icon" href="{% static 'icons/favicon.ico' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icons/apple-touch-icon.png' %}">
+    <!-- PWA -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -72,6 +73,9 @@
                 <div class="mt-auto pt-3 border-top">
                     <a href="/dashboard/" class="nav-link text-muted settings d-flex align-items-center">
                         <i data-lucide="chart-column" style="width:18px;height:18px;" class="me-2 fs-6"></i> Dashboard
+                    </a>
+                    <a href="/calendar/" class="nav-link text-muted settings d-flex align-items-center mb-1">
+                        <i class="bi bi-calendar3 me-2 fs-6"></i> Calendar
                     </a>
                     <a href="/settings/" class="nav-link text-muted settings d-flex align-items-center">
                         <i class="bi bi-gear me-2 fs-6"></i> Settings
